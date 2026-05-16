@@ -1,10 +1,11 @@
-using Microsoft.AspNetCore.Identity;
-
 namespace Domoupravitel.Data
 {
-    // Add profile data for application users by adding properties to the ApplicationUser class
-    public class ApplicationUser : IdentityUser
-    {
-    }
+    using Microsoft.AspNetCore.Identity;
 
+    public class ApplicationUser : IdentityUser<Guid>
+    {
+        public int ApartmentNo { get; set; }
+
+        public ICollection<Transaction> Transactions { get; set; } = [];
+    }
 }
