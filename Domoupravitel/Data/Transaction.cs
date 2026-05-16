@@ -8,9 +8,14 @@
 
         public TransactionType Type { get; set; }
 
+        public int NoOfPeopleLiving { get; set; }
+
         public decimal Amount { get; set; }
 
         public string? Description { get; set; }
+
+        public Guid ExpenseId { get; set; }
+        public Expense? Expense { get; set; }
 
         public Guid? BudgetId { get; set; }
         public Budget? Budget { get; set; }

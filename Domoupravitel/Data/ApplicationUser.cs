@@ -6,6 +6,10 @@ namespace Domoupravitel.Data
     {
         public int ApartmentNo { get; set; }
 
+        public int NoOfPeopleLiving { get; set; }
+
+        public decimal AmountDue { get; set; }
+
         public ICollection<Transaction> Transactions { get; set; } = [];
     }
 }

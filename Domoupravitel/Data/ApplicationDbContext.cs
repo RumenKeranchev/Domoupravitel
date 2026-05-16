@@ -10,6 +10,7 @@ namespace Domoupravitel.Data
         public DbSet<Transaction> Transactions { get; set; } = null!;
         public DbSet<Budget> Budgets { get; set; } = null!;
         public DbSet<Document> Documents { get; set; } = null!;
+        public DbSet<Expense> Expenses { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -19,6 +20,12 @@ namespace Domoupravitel.Data
             builder.Entity<Transaction>().Property(p => p.Description).HasMaxLength(2000);
             builder.Entity<Budget>().Property(p => p.Amount).HasPrecision(18, 2);
             builder.Entity<Document>().Property(p => p.FileName).HasMaxLength(200);
+            builder.Entity<Expense>().Property(p => p.Electricity).HasPrecision(18, 2);
+            builder.Entity<Expense>().Property(p => p.Elevator).HasPrecision(18, 2);
+            builder.Entity<Expense>().Property(p => p.Pets).HasPrecision(18, 2);
+            builder.Entity<Expense>().Property(p => p.Cleaning).HasPrecision(18, 2);
+            builder.Entity<Expense>().Property(p => p.MonthlyFee).HasPrecision(18, 2);
+            builder.Entity<ApplicationUser>().Property(p => p.AmountDue).HasPrecision(18, 2);
 
             builder.Entity<Transaction>()
                 .HasOne(t => t.Budget)
@@ -30,6 +37,12 @@ namespace Domoupravitel.Data
                 .HasOne(t => t.User)
                 .WithMany(u => u.Transactions)
                 .HasForeignKey(t => t.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Transaction>()
+                .HasOne(t => t.Expense)
+                .WithMany(e => e.Transactions)
+                .HasForeignKey(t => t.ExpenseId)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }

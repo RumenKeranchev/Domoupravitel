@@ -31,6 +31,10 @@ namespace Domoupravitel.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
+                    b.Property<decimal>("AmountDue")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<int>("ApartmentNo")
                         .HasColumnType("int");
 
@@ -50,6 +54,9 @@ namespace Domoupravitel.Migrations
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetimeoffset");
+
+                    b.Property<int>("NoOfPeopleLiving")
+                        .HasColumnType("int");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
@@ -135,6 +142,40 @@ namespace Domoupravitel.Migrations
                     b.ToTable("Documents");
                 });
 
+            modelBuilder.Entity("Domoupravitel.Data.Expense", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("Cleaning")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date");
+
+                    b.Property<decimal>("Electricity")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Elevator")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("MonthlyFee")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Pets")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Expenses");
+                });
+
             modelBuilder.Entity("Domoupravitel.Data.Transaction", b =>
                 {
                     b.Property<Guid>("Id")
@@ -155,6 +196,12 @@ namespace Domoupravitel.Migrations
                         .HasMaxLength(2000)
                         .HasColumnType("nvarchar(2000)");
 
+                    b.Property<Guid>("ExpenseId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("NoOfPeopleLiving")
+                        .HasColumnType("int");
+
                     b.Property<int>("Type")
                         .HasColumnType("int");
 
@@ -164,6 +211,8 @@ namespace Domoupravitel.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("BudgetId");
+
+                    b.HasIndex("ExpenseId");
 
                     b.HasIndex("UserId");
 
@@ -339,12 +388,20 @@ namespace Domoupravitel.Migrations
                         .HasForeignKey("BudgetId")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("Domoupravitel.Data.Expense", "Expense")
+                        .WithMany("Transactions")
+                        .HasForeignKey("ExpenseId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("Domoupravitel.Data.ApplicationUser", "User")
                         .WithMany("Transactions")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Budget");
+
+                    b.Navigation("Expense");
 
                     b.Navigation("User");
                 });
@@ -457,6 +514,11 @@ namespace Domoupravitel.Migrations
                 });
 
             modelBuilder.Entity("Domoupravitel.Data.Budget", b =>
+                {
+                    b.Navigation("Transactions");
+                });
+
+            modelBuilder.Entity("Domoupravitel.Data.Expense", b =>
                 {
                     b.Navigation("Transactions");
                 });
