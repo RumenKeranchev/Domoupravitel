@@ -1,0 +1,59 @@
+﻿@if (isVisible)
+{
+    <div class="modal-backdrop fade show"></div>
+    <div class="modal modal-@(Size) fade show d-block" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">@Title</h5>
+                    <button type="button" class="btn-close" @onclick="Hide"></button>
+                </div>
+
+                <div class="modal-body">
+                    @ChildContent
+                </div>
+
+                <div class="modal-footer">
+                    @if (!IsInfoOnly)
+                    {
+                        <button class="btn btn-outline-secondary" @onclick="Hide"><i class="fa-solid fa-ban"></i> Отмяна</button>
+                        <button class="btn btn-outline-primary" @onclick="OnSave"><i class="fa-regular fa-floppy-disk"></i> Запази</button>
+                    }
+                </div>
+
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private bool isVisible { get; set; }
+
+    [Parameter, EditorRequired]
+    public bool IsInfoOnly { get; set; } = false;
+
+    [Parameter, EditorRequired]
+    public string Title { get; set; } = "Modal";
+
+    [Parameter, EditorRequired]
+    public string Size { get; set; }
+    
+    [Parameter, EditorRequired]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public EventCallback OnSave { get; set; }
+
+    public void Show()
+    {
+        isVisible = true;
+        StateHasChanged();
+    }
+
+    public void Hide()
+    {
+        isVisible = false;
+        StateHasChanged();
+    }
+}

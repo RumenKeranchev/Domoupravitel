@@ -1,0 +1,154 @@
+﻿@page "/expenses"
+@rendermode InteractiveServer
+@using Domoupravitel.Data;
+
+@inject ApplicationDbContext db;
+
+<PageTitle>Разходи</PageTitle>
+
+@if (expenses == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="d-flex flex-column" style="height: 98vh">
+        <div class="flex-grow-1">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th class="text-center" style="width: 14.3%">Дата</th>
+                        <th class="text-center" style="width: 14.3%">Месечна такса</th>
+                        <th class="text-center" style="width: 14.3%">Ток</th>
+                        <th class="text-center" style="width: 14.3%">Асансьор</th>
+                        <th class="text-center" style="width: 14.3%">Дом. любимци</th>
+                        <th class="text-center" style="width: 14.3%">Чистачка</th>
+                        <th class="text-center" style="width: 14.3%">Общо</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var expense in expenses)
+                    {
+                        <tr @onclick="() => OnSelected(expense)" class="@(selectedExpense?.Id == expense.Id ? "table-info" : "")">
+                            <td class="text-center">@expense.Date.ToString("MM.yyyy")</td>
+                            <td class="text-center">@expense.MonthlyFee.ToString("C")</td>
+                            <td class="text-center">@expense.Electricity.ToString("C")</td>
+                            <td class="text-center">@expense.Elevator.ToString("C")</td>
+                            <td class="text-center">@expense.Pets.ToString("C")</td>
+                            <td class="text-center">@expense.Cleaning.ToString("C")</td>
+                            <td class="text-center">@expense.Total.ToString("C")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div>
+            <button class="btn btn-success" @onclick="OnAdd">
+                <i class="fa-solid fa-plus"></i> Добавяне
+            </button>
+
+            <button class="btn btn-warning" @onclick="() => modal?.Show(selectedExpense)" disabled="@(selectedExpense == null)">
+                <i class="fa-solid fa-pencil"></i> Редактиране
+            </button>
+
+            <nav class="float-end">
+                <ul class="pagination">
+                    <li class="page-item @(currentPage == 0 ? "disabled" : "")">
+                        <button class="page-link" @onclick="() => UpdateCurrentPage(false)"><i class="fa-solid fa-angles-left"></i></button>
+                    </li>
+
+                    @foreach (var page in Enumerable.Range(0, totalPages))
+                    {
+                        <li class="page-item @(currentPage == page ? "active" : "")">
+                            <button class="page-link" @onclick="() => SetCurrentPage(page)">
+                                @(page + 1)
+                            </button>
+                        </li>
+                    }
+
+                    <li class="page-item @(currentPage == totalPages - 1 ? "disabled" : "")">
+                        <button class="page-link" @onclick="() => UpdateCurrentPage(true)"><i class="fa-solid fa-angles-right"></i></button>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+}
+
+<ExpenseModal @ref="modal" OnSaved="OnSaved" />
+
+@code {
+    private List<Expense>? expenses;
+    private ExpenseModal? modal;
+    private int currentPage = 0;
+    private int totalPages = 0;
+    private int pageSize = 21;
+    private Expense? selectedExpense;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadExpensesAsync();
+    }
+
+    private async Task UpdateCurrentPage(bool increase)
+    {
+        if (increase)
+        {
+            if (currentPage + 1 <= totalPages - 1)
+            {
+                currentPage++;
+                await LoadExpensesAsync();
+            }
+        }
+        else
+        {
+            if (currentPage - 1 < 0)
+            {
+                currentPage = 0;
+            }
+            else
+            {
+                currentPage--;
+                await LoadExpensesAsync();
+            }
+        }
+    }
+
+    private async Task SetCurrentPage(int page)
+    {
+        currentPage = page;
+        await LoadExpensesAsync();
+    }
+
+    private async Task LoadExpensesAsync()
+    {
+        var totalCount = await db.Expenses.CountAsync();
+        totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+        expenses = await db.Expenses
+            .AsNoTracking()
+            .OrderByDescending(e => e.Date)
+            .Skip(currentPage * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+    }
+
+    private void OnAdd()
+    {
+        selectedExpense = null;
+        modal?.Show(null);
+    }
+
+    private void OnSelected(Expense expense)
+    {
+        selectedExpense = expense;
+    }
+
+    private async Task OnSaved(Expense expense)
+    {
+        selectedExpense = expense;
+        await LoadExpensesAsync();
+    }
+}

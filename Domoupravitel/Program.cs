@@ -4,6 +4,12 @@ using Domoupravitel.Data;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
+
+var culture = CultureInfo.CreateSpecificCulture("bg-BG"); 
+culture.NumberFormat.CurrencySymbol = "€"; 
+CultureInfo.DefaultThreadCurrentCulture = culture; 
+CultureInfo.DefaultThreadCurrentUICulture = culture;
 
 var builder = WebApplication.CreateBuilder(args);
 

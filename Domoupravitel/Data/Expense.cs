@@ -1,5 +1,7 @@
 ﻿namespace Domoupravitel.Data
 {
+    using System.ComponentModel.DataAnnotations.Schema;
+
     public class Expense
     {
         public Guid Id { get; set; }
@@ -17,5 +19,7 @@
         public decimal MonthlyFee { get; set; }
 
         public ICollection<Transaction> Transactions { get; set; } = [];
+                
+        public decimal Total => Electricity + Elevator + Pets + Cleaning + MonthlyFee;
     }
 }
