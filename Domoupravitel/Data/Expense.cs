@@ -1,12 +1,10 @@
 ﻿namespace Domoupravitel.Data
 {
-    using System.ComponentModel.DataAnnotations.Schema;
-
     public class Expense
     {
         public Guid Id { get; set; }
 
-        public DateOnly Date { get; set; } = DateOnly.FromDateTime(DateTime.UtcNow);        
+        public DateOnly Date { get; set; } = DateOnly.FromDateTime(DateTime.UtcNow);
 
         public decimal Electricity { get; set; }
 
@@ -19,7 +17,7 @@
         public decimal MonthlyFee { get; set; }
 
         public ICollection<Transaction> Transactions { get; set; } = [];
-                
+
         public decimal Total => Electricity + Elevator + Pets + Cleaning + MonthlyFee;
     }
 }

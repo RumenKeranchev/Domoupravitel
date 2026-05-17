@@ -7,9 +7,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 
-var culture = CultureInfo.CreateSpecificCulture("bg-BG"); 
-culture.NumberFormat.CurrencySymbol = "€"; 
-CultureInfo.DefaultThreadCurrentCulture = culture; 
+var culture = CultureInfo.CreateSpecificCulture("bg-BG");
+culture.NumberFormat.CurrencySymbol = "€";
+CultureInfo.DefaultThreadCurrentCulture = culture;
 CultureInfo.DefaultThreadCurrentUICulture = culture;
 
 var builder = WebApplication.CreateBuilder(args);
