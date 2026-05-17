@@ -1,6 +1,7 @@
 using Domoupravitel.Components;
 using Domoupravitel.Components.Account;
 using Domoupravitel.Data;
+using Domoupravitel.Shared;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -20,6 +21,7 @@ builder.Services.AddRazorComponents()
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
+builder.Services.AddScoped<NotificationService>();
 
 builder.Services.AddAuthentication(options =>
     {

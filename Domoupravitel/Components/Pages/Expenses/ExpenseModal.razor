@@ -1,6 +1,7 @@
 ﻿@using Domoupravitel.Components.Shared
 @using Domoupravitel.Data
 
+@inject NotificationService Notifications;
 @inject ApplicationDbContext db;
 
 <BaseModal @ref="modal" IsInfoOnly="false" Title="Разход" Size="lg" OnSave="SaveExpense">
@@ -56,7 +57,8 @@
 
             if (hasMonthlyExpense)
             {
-                throw new InvalidOperationException("Разход за този месец вече съществува.");
+                Notifications.ShowError("Разход за този месец вече съществува.");
+                return;
             }
         }
         else
@@ -65,21 +67,24 @@
 
             if (expense.Date.Month != date.Month && expense.Date.Year != date.Year)
             {
-                throw new InvalidOperationException("Не може да се редактира разход за минал месец.");
+                Notifications.ShowError("Не може да се редактира разход за минал месец.");
+                return;
             }
 
             var hasTransactions = await db.Transactions.AnyAsync(t => t.ExpenseId == expense.Id);
 
             if (hasTransactions)
             {
-                throw new InvalidOperationException("Не може да се редактира разход със свързани транзакции.");
+                Notifications.ShowError("Не може да се редактира разход със свързани транзакции.");
+                return;
             }
         }
 
         if (expense.MonthlyFee < 0 && expense.Cleaning < 0 && expense.Electricity < 0
             && expense.Elevator < 0 && expense.Pets < 0)
         {
-            throw new InvalidOperationException("Сумите не могат да бъдат отрицателни.");
+            Notifications.ShowError("Сумите не могат да бъдат отрицателни.");
+            return;
         }
 
         if (expense.Id == Guid.Empty)
@@ -93,6 +98,8 @@
         }
 
         await db.SaveChangesAsync();
+        Notifications.ShowSuccess("Успешно запазване.");
+
         modal?.Hide();
 
         await OnSaved.InvokeAsync(expense);

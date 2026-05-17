@@ -1,0 +1,71 @@
+﻿@rendermode InteractiveServer
+@implements IDisposable
+@inject NotificationService Notifications
+
+<div class="toast-container p-3 top-0 start-50 translate-middle-x">
+    @if (isVisible)
+    {
+        <div class="toast show @(cssClass)" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <strong class="text-center flex-grow-1">@title</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close" @onclick="Hide"></button>
+            </div>
+            <div class="toast-body text-center">
+                @message
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private bool isVisible;
+    private string message = "";
+    private string title = "";
+    private string cssClass = "";
+
+    protected override void OnInitialized()
+    {
+        Notifications.OnShow += Show;
+    }
+
+    public void Dispose()
+    {
+        Notifications.OnShow -= Show;
+    }
+
+    public async void Show(string receivedMessage, NotificationType type)
+    {
+        message = receivedMessage;
+        title = type switch
+        {
+            NotificationType.Success => "Успех",
+            NotificationType.Info => "Информация",
+            NotificationType.Warning => "Внимание",
+            NotificationType.Error => "Грешка",
+            _ => "Неизвестно"
+        };
+        cssClass = type switch
+        {
+            NotificationType.Success => "bg-success",
+            NotificationType.Info => "bg-info",
+            NotificationType.Warning => "bg-warning",
+            NotificationType.Error => "bg-danger",
+            _ => "bg-secondary"
+        };
+        isVisible = true;
+
+        await InvokeAsync(StateHasChanged);
+
+        await Task.Delay(5000);
+
+        isVisible = false;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Hide()
+    {
+        isVisible = false;
+        StateHasChanged();
+    }
+}
