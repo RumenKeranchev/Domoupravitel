@@ -27,7 +27,7 @@
                 <label for="floatingInput">Дом. любимци</label>
             </div>
             <div class="form-floating">
-                <input min="0" type="number" class="form-control" id="floatingInput" placeholder="Чистачка" @bind-value="expense.Cleaning">
+                <input min="0" type="number" class="form-control" id="floatingInput" placeholder="Чистачка" @bind-value="expense.Vault">
                 <label for="floatingInput">Чистачка</label>
             </div>
         </div>
@@ -80,7 +80,7 @@
             }
         }
 
-        if (expense.MonthlyFee < 0 && expense.Cleaning < 0 && expense.Electricity < 0
+        if (expense.MonthlyFee < 0 && expense.Vault < 0 && expense.Electricity < 0
             && expense.Elevator < 0 && expense.Pets < 0)
         {
             Notifications.ShowError("Сумите не могат да бъдат отрицателни.");

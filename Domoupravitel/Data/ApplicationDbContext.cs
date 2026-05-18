@@ -23,7 +23,7 @@ namespace Domoupravitel.Data
             builder.Entity<Expense>().Property(p => p.Electricity).HasPrecision(18, 2);
             builder.Entity<Expense>().Property(p => p.Elevator).HasPrecision(18, 2);
             builder.Entity<Expense>().Property(p => p.Pets).HasPrecision(18, 2);
-            builder.Entity<Expense>().Property(p => p.Cleaning).HasPrecision(18, 2);
+            builder.Entity<Expense>().Property(p => p.Vault).HasPrecision(18, 2);
             builder.Entity<Expense>().Property(p => p.MonthlyFee).HasPrecision(18, 2);
             builder.Entity<ApplicationUser>().Property(p => p.AmountDue).HasPrecision(18, 2);
 

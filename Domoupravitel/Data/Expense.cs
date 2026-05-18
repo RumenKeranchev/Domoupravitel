@@ -12,12 +12,12 @@
 
         public decimal Pets { get; set; }
 
-        public decimal Cleaning { get; set; }
+        public decimal Vault { get; set; }
 
         public decimal MonthlyFee { get; set; }
 
         public ICollection<Transaction> Transactions { get; set; } = [];
 
-        public decimal Total => Electricity + Elevator + Pets + Cleaning + MonthlyFee;
+        public decimal Total => Electricity + Elevator + Pets + Vault + MonthlyFee;
     }
 }

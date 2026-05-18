@@ -15,14 +15,14 @@ else
     <div class="d-flex flex-column" style="height: 98vh">
         <div class="flex-grow-1">
             <table class="table">
-                <thead>
+                <thead class="table-secondary">
                     <tr>
                         <th class="text-center" style="width: 14.3%">Дата</th>
+                        <th class="text-center" style="width: 14.3%">Каса</th>
                         <th class="text-center" style="width: 14.3%">Месечна такса</th>
-                        <th class="text-center" style="width: 14.3%">Ток</th>
                         <th class="text-center" style="width: 14.3%">Асансьор</th>
+                        <th class="text-center" style="width: 14.3%">Ток</th>
                         <th class="text-center" style="width: 14.3%">Дом. любимци</th>
-                        <th class="text-center" style="width: 14.3%">Чистачка</th>
                         <th class="text-center" style="width: 14.3%">Общо</th>
                     </tr>
                 </thead>
@@ -31,11 +31,11 @@ else
                     {
                         <tr @onclick="() => OnSelected(expense)" class="@(selectedExpense?.Id == expense.Id ? "table-info" : "")">
                             <td class="text-center">@expense.Date.ToString("MM.yyyy")</td>
+                            <td class="text-center">@expense.Vault.ToString("C")</td>
                             <td class="text-center">@expense.MonthlyFee.ToString("C")</td>
-                            <td class="text-center">@expense.Electricity.ToString("C")</td>
                             <td class="text-center">@expense.Elevator.ToString("C")</td>
+                            <td class="text-center">@expense.Electricity.ToString("C")</td>
                             <td class="text-center">@expense.Pets.ToString("C")</td>
-                            <td class="text-center">@expense.Cleaning.ToString("C")</td>
                             <td class="text-center">@expense.Total.ToString("C")</td>
                         </tr>
                     }
