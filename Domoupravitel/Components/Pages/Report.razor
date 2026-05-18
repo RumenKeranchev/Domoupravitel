@@ -1,64 +1,127 @@
 ﻿@page "/report"
+@rendermode InteractiveServer
 @attribute [StreamRendering]
 
-<PageTitle>Weather</PageTitle>
+@inject ApplicationDbContext db;
 
-<h1>Weather</h1>
+<PageTitle>Справка</PageTitle>
 
-<p>This component demonstrates showing data.</p>
+<div class="d-flex flex-column gap-2" style="height: 98vh">
+    <div class="d-flex justify-content-start align-items-center gap-2">
+        <select @bind="month" class="form-control" style="width: 100px" @bind:after="LoadData">
+            <option value="1">Януари</option>
+            <option value="2">Февруари</option>
+            <option value="3">Март</option>
+            <option value="4">Април</option>
+            <option value="5">Май</option>
+            <option value="6">Юни</option>
+            <option value="7">Юли</option>
+            <option value="8">Август</option>
+            <option value="9">Септември</option>
+            <option value="10">Октомври</option>
+            <option value="11">Ноември</option>
+            <option value="12">Декември</option>
+        </select>
 
-@if (forecasts == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th aria-label="Temperature in Celsius">Temp. (C)</th>
-                <th aria-label="Temperature in Fahrenheit">Temp. (F)</th>
-                <th>Summary</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var forecast in forecasts)
+        <select @bind="year" class="form-control" style="width: 100px" @bind:after="LoadData">
+            @foreach (var year in Enumerable.Range(DateTime.UtcNow.AddYears(-5).Year, 6).Reverse())
             {
-                <tr>
-                    <td>@forecast.Date.ToShortDateString()</td>
-                    <td>@forecast.TemperatureC</td>
-                    <td>@forecast.TemperatureF</td>
-                    <td>@forecast.Summary</td>
-                </tr>
+                <option value="@year">@year</option>
             }
-        </tbody>
-    </table>
-}
+        </select>
+
+        <div>Каса: <strong>@((expense?.Vault ?? 0).ToString("C"))</strong></div>
+        <div>Месечна: <strong>@((expense?.MonthlyFee ?? 0).ToString("C"))</strong></div>
+        <div>Асансьор: <strong>@((expense?.Elevator ?? 0).ToString("C"))</strong></div>
+        <div>Ток: <strong>@((expense?.Electricity ?? 0).ToString("C"))</strong></div>
+        <div>Дом: <strong>@((expense?.Pets ?? 0).ToString("C"))</strong></div>
+        <div>Общо: <strong>@((expense?.Total ?? 0).ToString("C"))</strong></div>
+    </div>
+
+    <div class="flex-grow-1">
+        <table class="table">
+            <thead>
+                <tr class="d-flex justify-content-evenly table-rows table-secondary">
+                    <th class="text-center">Апартамент</th>
+                    <th class="text-center">Етаж</th>
+                    <th class="text-center">Живущи</th>
+                    <th class="text-center">Каса</th>
+                    <th class="text-center">Месечна такса</th>
+                    <th class="text-center">Асансьор</th>
+                    <th class="text-center">Ток</th>
+                    <th class="text-center">Дом. любимци</th>
+                    <th class="text-center">Общо</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var forecast in userReports)
+                {
+                    <tr class="d-flex justify-content-evenly table-rows text-center">
+                        <td>@forecast.ApartmentNo.ToString("C")</td>
+                        <td>@forecast.Floor.ToString("C")</td>
+                        <td>@forecast.NoOfPeopleLiving.ToString("C")</td>
+                        <td>@forecast.Vault.ToString("C")</td>
+                        <td>@forecast.MonthlyFee.ToString("C")</td>
+                        <td>@forecast.Elevator.ToString("C")</td>
+                        <td>@forecast.Electricity.ToString("C")</td>
+                        <td>@forecast.Pets.ToString("C")</td>
+                        <td>@forecast.Total.ToString("C")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
 
 @code {
-    private WeatherForecast[]? forecasts;
+    private int month = DateTime.UtcNow.Month;
+    private int year = DateTime.UtcNow.Year;
+    private List<UserReport> userReports = [];
+    private Expense? expense;
 
     protected override async Task OnInitializedAsync()
     {
-        // Simulate asynchronous loading to demonstrate streaming rendering
-        await Task.Delay(500);
-
-        var startDate = DateOnly.FromDateTime(DateTime.Now);
-        var summaries = new[] { "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching" };
-        forecasts = Enumerable.Range(1, 5).Select(index => new WeatherForecast
-        {
-            Date = startDate.AddDays(index),
-            TemperatureC = Random.Shared.Next(-20, 55),
-            Summary = summaries[Random.Shared.Next(summaries.Length)]
-        }).ToArray();
+        await LoadData();
     }
 
-    private class WeatherForecast
+    private async Task LoadData()
     {
-        public DateOnly Date { get; set; }
-        public int TemperatureC { get; set; }
-        public string? Summary { get; set; }
-        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+        expense = await db.Expenses
+            .AsNoTracking()
+            .FirstOrDefaultAsync(e => e.Date.Month == month && e.Date.Year == year);
+
+        if (expense is null)
+        {
+            userReports = [];
+            return;
+        }
+
+        var users = await db.Users
+            .Select(u => new
+            {
+                u.ApartmentNo,
+                u.NoOfPeopleLiving,
+                u.AmountDue
+            })
+            .Distinct()
+            .ToListAsync();
+
+        userReports = users
+            .Select(u => new UserReport(
+                u.ApartmentNo,
+                (int)Math.Floor(u.ApartmentNo / 3.0),
+                u.NoOfPeopleLiving,
+                expense.Vault * u.NoOfPeopleLiving,
+                expense.MonthlyFee * u.NoOfPeopleLiving,
+                expense.Electricity * u.NoOfPeopleLiving,
+                expense.Electricity * u.NoOfPeopleLiving,
+                expense.Pets * u.NoOfPeopleLiving,
+                expense.Total * u.NoOfPeopleLiving,
+                u.AmountDue
+            ))
+            .ToList();
     }
+
+    record UserReport(int ApartmentNo, int Floor, int NoOfPeopleLiving, decimal Vault, decimal MonthlyFee, decimal Elevator, decimal Electricity, decimal Pets, decimal Total, decimal AmountDue);
 }

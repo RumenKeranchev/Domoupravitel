@@ -1,6 +1,5 @@
 ﻿@page "/expenses"
 @rendermode InteractiveServer
-@using Domoupravitel.Data;
 
 @inject ApplicationDbContext db;
 
@@ -15,21 +14,21 @@ else
     <div class="d-flex flex-column" style="height: 98vh">
         <div class="flex-grow-1">
             <table class="table">
-                <thead class="table-secondary">
-                    <tr>
-                        <th class="text-center" style="width: 14.3%">Дата</th>
-                        <th class="text-center" style="width: 14.3%">Каса</th>
-                        <th class="text-center" style="width: 14.3%">Месечна такса</th>
-                        <th class="text-center" style="width: 14.3%">Асансьор</th>
-                        <th class="text-center" style="width: 14.3%">Ток</th>
-                        <th class="text-center" style="width: 14.3%">Дом. любимци</th>
-                        <th class="text-center" style="width: 14.3%">Общо</th>
+                <thead>
+                    <tr class="table-secondary d-flex justify-content-evenly table-rows">
+                        <th class="text-center">Дата</th>
+                        <th class="text-center">Каса</th>
+                        <th class="text-center">Месечна такса</th>
+                        <th class="text-center">Асансьор</th>
+                        <th class="text-center">Ток</th>
+                        <th class="text-center">Дом. любимци</th>
+                        <th class="text-center">Общо</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var expense in expenses)
                     {
-                        <tr @onclick="() => OnSelected(expense)" class="@(selectedExpense?.Id == expense.Id ? "table-info" : "")">
+                        <tr @onclick="() => OnSelected(expense)" class="@(selectedExpense?.Id == expense.Id ? "table-info" : "")  d-flex justify-content-evenly table-rows">
                             <td class="text-center">@expense.Date.ToString("MM.yyyy")</td>
                             <td class="text-center">@expense.Vault.ToString("C")</td>
                             <td class="text-center">@expense.MonthlyFee.ToString("C")</td>
