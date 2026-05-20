@@ -4,6 +4,5 @@
     {
         Income,
         Expense,
-        Template,
     }
 }
