@@ -35,7 +35,7 @@
             <div>Месечна: <strong>@((expense?.MonthlyFee ?? 0).ToString("C"))</strong></div>
             <div>Асансьор: <strong>@((expense?.Elevator ?? 0).ToString("C"))</strong></div>
             <div>Ток: <strong>@((expense?.Electricity ?? 0).ToString("C"))</strong></div>
-            <div>Дом: <strong>@((expense?.Pets ?? 0).ToString("C"))</strong></div>
+            <div>Дом. любимци: <strong>@((expense?.Pets ?? 0).ToString("C"))</strong></div>
             <div>Общо: <strong>@((expense?.Total ?? 0).ToString("C"))</strong></div>
             <div>Приходи: <strong>@(userReports.Sum(r => r.Total).ToString("C"))</strong></div>
             <div>Задължения: <strong>- @(userReports.Sum(r => r.AmountDue).ToString("C"))</strong></div>
@@ -111,6 +111,7 @@
             {
                 u.ApartmentNo,
                 u.NoOfPeopleLiving,
+                u.NoOfPets,
                 u.AmountDue
             })
             .Distinct()
@@ -119,14 +120,14 @@
         userReports = users
             .Select(u => new UserReport(
                 u.ApartmentNo,
-                (int)Math.Floor(u.ApartmentNo / 3.0),
+                (int)Math.Ceiling(u.ApartmentNo / 3.0),
                 u.NoOfPeopleLiving,
                 expense.Vault * u.NoOfPeopleLiving,
                 expense.MonthlyFee * u.NoOfPeopleLiving,
+                expense.Elevator * u.NoOfPeopleLiving,
                 expense.Electricity * u.NoOfPeopleLiving,
-                expense.Electricity * u.NoOfPeopleLiving,
-                expense.Pets * u.NoOfPeopleLiving,
-                expense.Total * u.NoOfPeopleLiving,
+                expense.Pets * u.NoOfPets,
+                ((expense.Total - expense.Pets) * u.NoOfPeopleLiving) + (expense.Pets * u.NoOfPets),
                 u.AmountDue
             ))
             .ToList();
