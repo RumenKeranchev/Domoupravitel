@@ -8,6 +8,8 @@ namespace Domoupravitel.Data
 
         public int NoOfPeopleLiving { get; set; }
 
+        public int NoOfPets { get; set; }
+
         public decimal AmountDue { get; set; }
 
         public ICollection<Transaction> Transactions { get; set; } = [];

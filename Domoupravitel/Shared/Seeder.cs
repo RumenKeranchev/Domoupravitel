@@ -57,6 +57,8 @@
             foreach (var fake in Users)
             {
                 fake.ApartmentNo = Users.IndexOf(fake) + 1 == 12 ? 23 : Users.IndexOf(fake) + 1;
+                fake.NoOfPets = (Users.IndexOf(fake) + 1) % 12 == 0 ? new Random().Next(2, 5) : 0;
+                fake.AmountDue = (Users.IndexOf(fake) + 1) % 6 == 0 ? new Random().Next(20, 80) : 0;
                 result = await userManager.CreateAsync(fake, "password");
                 await userManager.AddToRoleAsync(fake, Roles.User);
             }
