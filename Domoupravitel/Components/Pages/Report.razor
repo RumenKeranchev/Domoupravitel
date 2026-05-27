@@ -2,7 +2,8 @@
 @rendermode InteractiveServer
 @attribute [StreamRendering]
 
-@inject ApplicationDbContext db;
+@inject IJSRuntime JS
+@inject ReportService reportService;
 
 <PageTitle>Справка</PageTitle>
 
@@ -78,7 +79,7 @@
         </table>
     </div>
     <div class="mb-2">
-        <button class="btn btn-info"><i class="fa-solid fa-file-pdf"></i> Print</button>
+        <button class="btn btn-info" @onclick="Print"><i class="fa-solid fa-file-pdf"></i> Принт бележки</button>
     </div>
 </div>
 
@@ -96,42 +97,10 @@
 
     private async Task LoadData()
     {
-        expense = await db.Expenses
-            .AsNoTracking()
-            .FirstOrDefaultAsync(e => e.Date.Month == month && e.Date.Year == year);
-
-        if (expense is null)
-        {
-            userReports = [];
-            return;
-        }
-
-        var users = await db.Users
-            .Select(u => new
-            {
-                u.ApartmentNo,
-                u.NoOfPeopleLiving,
-                u.NoOfPets,
-                u.AmountDue
-            })
-            .Distinct()
-            .ToListAsync();
-
-        userReports = users
-            .Select(u => new UserReport(
-                u.ApartmentNo,
-                (int)Math.Ceiling(u.ApartmentNo / 3.0),
-                u.NoOfPeopleLiving,
-                expense.Vault * u.NoOfPeopleLiving,
-                expense.MonthlyFee * u.NoOfPeopleLiving,
-                expense.Elevator * u.NoOfPeopleLiving,
-                expense.Electricity * u.NoOfPeopleLiving,
-                expense.Pets * u.NoOfPets,
-                ((expense.Total - expense.Pets) * u.NoOfPeopleLiving) + (expense.Pets * u.NoOfPets),
-                u.AmountDue
-            ))
-            .ToList();
+        (expense, userReports) = await reportService.GetUserReportsAsync(month, year);
     }
 
-    record UserReport(int ApartmentNo, int Floor, int NoOfPeopleLiving, decimal Vault, decimal MonthlyFee, decimal Elevator, decimal Electricity, decimal Pets, decimal Total, decimal AmountDue);
+    private async Task Print()
+        => await JS.InvokeVoidAsync("open", $"/api/pdf/bill/{month}/{year}", "_blank");
+
 }

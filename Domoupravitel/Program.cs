@@ -1,16 +1,21 @@
 using Domoupravitel.Components;
 using Domoupravitel.Components.Account;
 using Domoupravitel.Data;
+using Domoupravitel.PDF;
 using Domoupravitel.Shared;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using QuestPDF.Fluent;
 using System.Globalization;
 
 var culture = CultureInfo.CreateSpecificCulture("bg-BG");
 culture.NumberFormat.CurrencySymbol = "€";
 CultureInfo.DefaultThreadCurrentCulture = culture;
 CultureInfo.DefaultThreadCurrentUICulture = culture;
+
+QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +27,7 @@ builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
 builder.Services.AddScoped<NotificationService>();
+builder.Services.AddScoped<ReportService>();
 
 string connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -81,5 +87,12 @@ app.MapRazorComponents<App>()
 
 // Add additional endpoints required by the Identity /Account Razor components.
 app.MapAdditionalIdentityEndpoints();
+
+app.MapGet("/api/pdf/bill/{month}/{year}", async ([FromServices] ReportService service, int month, int year) =>
+{
+    var result = await service.GetUserReportsAsync(month, year);
+    byte[] bill = new Bill(result.Reports, month, year).GeneratePdf();
+    return Results.File(bill, "application/pdf");
+});
 
 app.Run();
